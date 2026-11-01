@@ -228,3 +228,4 @@ with tab2:
         st.markdown(pdf_display, unsafe_allow_html=True)
     else:
         st.info("PDF menu file not found in raw_data folder.")
+
