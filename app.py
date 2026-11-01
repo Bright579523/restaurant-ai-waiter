@@ -111,6 +111,8 @@ with st.sidebar:
         st.session_state.pending_input = ""
         st.rerun()
 
+    st.divider()
+    st.markdown("🌐 [Live App](https://restaurant-ai-waiter.streamlit.app/) | 📂 [GitHub Repo](https://github.com/Bright579523/restaurant-ai-waiter)")
     st.caption("Powered by Sentence-Transformers, Hybrid Vector Search, and Groq LLM.")
 
 # Main Header Banner

@@ -2,20 +2,57 @@
 
 An intelligent, allergy-safe menu recommendation chatbot for **ReDi Restaurant** built with **Retrieval-Augmented Generation (RAG)**, **Hybrid Vector Search**, and **Groq LLM**.
 
-[![Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://streamlit.io)
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://restaurant-ai-waiter.streamlit.app/)
+[![GitHub Repo](https://img.shields.io/badge/GitHub-Repository-181717?logo=github)](https://github.com/Bright579523/restaurant-ai-waiter)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+
+> 🚀 **Live Demo Available:** Try out the chatbot live at **[restaurant-ai-waiter.streamlit.app](https://restaurant-ai-waiter.streamlit.app/)**
 
 ---
 
 ## 🌟 Highlights & Key Features
 
-- **🛡️ Allergy-Safe & Dietary Aware**: Two-tier allergen detection (strict letter-code matching + keyword checking for dairy, nuts, gluten, etc.). Supports Vegetarian and Vegan options.
+- **🛡️ Allergy-Safe & Dietary Aware**: Two-tier allergen detection (strict letter-code matching + keyword checking for dairy, nuts, gluten, etc.). Supports Vegetarian and Vegan options with zero guesswork.
 - **💰 Budget-Conscious Filtering**: Precise numeric price filtering combined with semantic intent parsing.
 - **🧠 Hybrid Vector Retrieval**: Combines SQL-like Boolean metadata filtering (Pandas/NumPy) with Cosine Similarity semantic ranking (`paraphrase-multilingual-MiniLM-L12-v2`).
 - **🌐 Multilingual Intelligence**: Converses naturally in English, German, and Thai, translating German dish descriptions dynamically.
 - **⚡ Ultra-Fast Inference**: Powered by the Groq LPU engine for instant real-time waiter responses.
 - **📊 Interactive Streamlit UI**: Chat history, quick example questions, catalog filtering, and embedded original menu PDF viewer.
+
+---
+
+## 📸 Application Showcase
+
+### 🏠 1. Home & Welcome Screen
+> *Intuitive landing interface with welcome greeting, system badges, and one-click example question shortcuts.*
+
+![Home & Welcome Screen](report/dashboard_home.png)
+*Caption: Clean chat overview with quick example questions and allergy/dietary safety indicators.*
+
+<br/>
+
+### 💬 2. Interactive AI Waiter Dialog (RAG in Action)
+> *Customers can ask in natural language. The system parses intent, queries the menu database, and generates conversational recommendations.*
+
+![AI Waiter Dialog](report/dashboard_chatting.png)
+*Caption: Real-time conversation showing dish recommendations, prices, ingredients, and allergen warnings.*
+
+<br/>
+
+### 📋 3. Menu Explorer & Dynamic Catalog Filtering
+> *Dedicated tab for browsing all 157 dishes with interactive filters by category, dietary preferences, and price slider.*
+
+![Interactive Menu Filter](report/dashboard_filtered.png)
+*Caption: Interactive menu explorer allowing users to filter dishes by budget, category, and vegan/vegetarian flags.*
+
+<br/>
+
+### 🎨 4. Design Mockup Concept
+> *UI/UX concept layout for the next-generation digital restaurant portal.*
+
+![Design Mockup](report/swagat_ui_mockup.png)
+*Caption: High-fidelity visual mockup of the restaurant ordering experience.*
 
 ---
 
@@ -52,12 +89,15 @@ User Natural Language Query
        Streamlit Chat Interface
 ```
 
+![End-to-End System Architecture Diagram](report/system_architecture.png)
+*Caption: Detailed pipeline showing PDF extraction, structured CSV transformation, vector caching, and RAG execution flow.*
+
 ---
 
 ## 📁 Repository Structure
 
 ```text
-Final Project/
+restaurant-ai-waiter/
 ├── raw_data/                         # Original restaurant menu document
 │   └── Menu of ReDi Restaurant.pdf 
 ├── data_pipeline/                    # Extraction & cleaning scripts
@@ -80,7 +120,10 @@ Final Project/
 ├── report/                           # Architecture diagrams and documentation
 │   ├── project_summary.md
 │   ├── system_architecture.png
-│   └── dashboard_home.png
+│   ├── dashboard_home.png
+│   ├── dashboard_chatting.png
+│   ├── dashboard_filtered.png
+│   └── swagat_ui_mockup.png
 ├── requirements.txt                  # Python dependencies
 ├── .env.example                      # Template for environment variables
 └── README.md
@@ -90,17 +133,18 @@ Final Project/
 
 ## 🛠️ Tech Stack
 
-| Category | Technology |
-|---|---|
-| **Programming Language** | Python 3.10+ |
-| **PDF Extraction** | `pypdf` |
-| **Data Processing & Filtering** | `pandas`, `numpy` |
-| **Text Embedding Model** | `paraphrase-multilingual-MiniLM-L12-v2` (`sentence-transformers`) |
-| **Vector Similarity** | `scikit-learn` (Cosine Similarity) |
-| **Data Serialization** | `pickle` |
-| **Intent Schema Validation** | `Pydantic v2` |
-| **LLM Inference** | Groq API (`qwen/qwen3.8-27b`) |
-| **Web Framework** | `streamlit` |
+| Category | Technology | Purpose |
+|---|---|---|
+| **Programming Language** | Python 3.10+ | Core language for backend logic and RAG pipeline |
+| **PDF Extraction** | `pypdf` | Extracts German text from the original 12-page menu PDF |
+| **Data Processing & Filtering** | `pandas`, `numpy` | Structured tabular data manipulation and boolean filtering |
+| **Text Embedding Model** | `paraphrase-multilingual-MiniLM-L12-v2` (`sentence-transformers`) | Computes 384-dimensional multilingual sentence embeddings |
+| **Vector Similarity** | `scikit-learn` (Cosine Similarity) | Calculates semantic relevance scores between query and dishes |
+| **Data Serialization** | `pickle` | Serializes DataFrame and embedding matrix for instant startup |
+| **Intent Schema Validation** | `Pydantic v2` | Enforces structured JSON output schema for user intent |
+| **LLM Inference** | Groq API (`qwen/qwen3.8-27b`) | Natural language generation and intent parsing at ultra-low latency |
+| **Web UI Framework** | `streamlit` | Interactive web dashboard and real-time chat interface |
+| **Cloud Hosting** | Streamlit Community Cloud | Continuous deployment from GitHub repository |
 
 ---
 
@@ -108,8 +152,8 @@ Final Project/
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/Bright579523/redi-restaurant-ai-waiter.git
-cd redi-restaurant-ai-waiter
+git clone https://github.com/Bright579523/restaurant-ai-waiter.git
+cd restaurant-ai-waiter
 ```
 
 ### 2. Install dependencies
@@ -137,7 +181,7 @@ python embeddings/build_embeddings.py
 ```bash
 streamlit run app.py
 ```
-Open your browser at `http://localhost:8501`.
+Open your browser at `http://localhost:8501` or visit the live deployment at **[restaurant-ai-waiter.streamlit.app](https://restaurant-ai-waiter.streamlit.app/)**.
 
 ---
 
@@ -145,4 +189,5 @@ Open your browser at `http://localhost:8501`.
 
 **Watcharapon Anaketanaset (Bright)**  
 ReDi School of Digital Integration — Final Project 2026  
-GitHub: [@Bright579523](https://github.com/Bright579523)
+- **GitHub:** [@Bright579523](https://github.com/Bright579523)  
+- **Live Project:** [restaurant-ai-waiter.streamlit.app](https://restaurant-ai-waiter.streamlit.app/)
