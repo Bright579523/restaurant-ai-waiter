@@ -57,7 +57,7 @@ def is_header_or_metadata(line):
     line_s = line.strip()
     if not line_s:
         return True
-    if any(x in line_s for x in ["Swagat Indian Restaurant", "ReDi Restaurant", "https://www.swagat", "Online Menu Of", "See MENU & Order", "INDIAN FOOD DELIVERY", "We offer Pick-up"]):
+    if any(x in line_s for x in ["ReDi Indian Restaurant", "ReDi Restaurant", "https://www.redi", "Online Menu Of", "See MENU & Order", "INDIAN FOOD DELIVERY", "We offer Pick-up"]):
         return True
     if line_s in HEADERS_TO_IGNORE:
         return True

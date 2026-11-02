@@ -14,7 +14,7 @@ I will use two datasets:
 
 ### 1. Restaurant Menu CSV Dataset
 
-* File: `swagat_menu.csv`
+* File: `redi_menu.csv`
 * Contains structured menu information such as:
 
   * Dish name
@@ -28,7 +28,7 @@ I will use two datasets:
 
 ### 2. Restaurant Menu PDF
 
-* File: `swagat_menu.pdf`
+* File: `redi_menu.pdf`
 * Contains additional menu information and descriptions available to restaurant customers.
 
 These datasets will be converted into LangChain Documents, embedded using the BAAI/bge-m3 embedding model, stored in ChromaDB, and used by the RAG chatbot to answer customer questions.

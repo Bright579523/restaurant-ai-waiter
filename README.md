@@ -51,7 +51,7 @@ An intelligent, allergy-safe menu recommendation chatbot for **ReDi Restaurant**
 ### 🎨 4. Design Mockup Concept
 > *UI/UX concept layout for the next-generation digital restaurant portal.*
 
-![Design Mockup](report/swagat_ui_mockup.png)
+![Design Mockup](report/redi_ui_mockup.jpg)
 *Caption: High-fidelity visual mockup of the restaurant ordering experience.*
 
 ---
@@ -123,7 +123,7 @@ restaurant-ai-waiter/
 │   ├── dashboard_home.png
 │   ├── dashboard_chatting.png
 │   ├── dashboard_filtered.png
-│   └── swagat_ui_mockup.png
+│   └── redi_ui_mockup.jpg
 ├── requirements.txt                  # Python dependencies
 ├── .env.example                      # Template for environment variables
 └── README.md

@@ -1,11 +1,11 @@
 """
-agent.py — Swagat AI Waiter (RAG Agent)
-=========================================
+agent.py — ReDi AI Waiter (RAG Agent)
+======================================
 Ties together LLM-based intent parsing, hybrid vector search, and
 natural-language response generation into a single conversational agent.
 
 Pipeline per user turn:
-  1. **parse_user_intent** — Groq / Llama-3.3-70B extracts a semantic
+  1. **parse_user_intent** — Groq extracts a semantic
      query string + structured metadata filters from free-text input.
   2. **search** — MenuSearchEngine retrieves the top-k matches.
   3. **generate_recommendation** — The LLM writes a friendly waiter
@@ -15,8 +15,8 @@ A rule-based mock parser is provided as a fallback when no API key
 is configured, so the demo still functions offline.
 
 Usage:
-    from agent import SwagatAIAgent
-    agent = SwagatAIAgent()
+    from agent import ReDiRestaurantAIAgent
+    agent = ReDiRestaurantAIAgent()
     reply = agent.chat("I want a vegetarian dish with spinach")
 """
 
