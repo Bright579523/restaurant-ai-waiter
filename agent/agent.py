@@ -115,11 +115,19 @@ class ReDiRestaurantAIAgent:
 
     def __init__(self):
         api_key = os.environ.get("GROQ_API_KEY", "")
+        if not api_key:
+            try:
+                import streamlit as st
+                if hasattr(st, "secrets") and "GROQ_API_KEY" in st.secrets:
+                    api_key = st.secrets["GROQ_API_KEY"]
+            except Exception:
+                pass
+
         self.client = Groq(api_key=api_key) if api_key else None
 
         if not self.client:
             print(
-                "\n[Warning] GROQ_API_KEY is not set in .env - running in demo/mock mode.\n"
+                "\n[Warning] GROQ_API_KEY is not set in .env or st.secrets - running in demo/mock mode.\n"
             )
 
         self.search_engine = MenuSearchEngine()
@@ -265,6 +273,8 @@ class ReDiRestaurantAIAgent:
             if ingredient in low:
                 filters.contains_ingredients = filters.contains_ingredients or []
                 filters.contains_ingredients.append(ingredient)
+                if ingredient != "paneer":
+                    filters.is_vegetarian = False
 
         # Price ceiling
         price_match = re.search(
@@ -282,19 +292,26 @@ class ReDiRestaurantAIAgent:
     @staticmethod
     def _format_fallback(results: list[dict]) -> str:
         """Render structured results when the LLM is unavailable."""
-        header = "📋 [Demo Mode] Here are matching recommendations:\n"
         if not results:
-            return header + "  No matching items found for your criteria."
-
-        lines = []
-        for r in results:
-            lines.append(
-                f"\n• **{r['name']}** — {r['price']:.2f} €\n"
-                f"  {r['description_de']}\n"
-                f"  Category: {r['category']} | "
-                f"Allergens: {r['allergen_codes'] or 'none'}"
+            return (
+                "Namaste! 🙏 I couldn't find any dishes matching all your criteria. "
+                "Try relaxing your price budget or dietary filters, or ask for another ingredient!"
             )
-        return header + "\n".join(lines)
+
+        lines = ["Namaste! 🙏 Here are delicious recommendations from our menu:\n"]
+        for r in results:
+            diet_tags = []
+            if r.get("is_vegetarian"):
+                diet_tags.append("🍀 Vegetarian")
+            if r.get("is_vegan_possible"):
+                diet_tags.append("🌱 Vegan")
+            tags_str = f" ({', '.join(diet_tags)})" if diet_tags else ""
+
+            lines.append(
+                f"• **{r['name']}** — **€{r['price']:.2f}**{tags_str}\n"
+                f"  {r['description_de']}"
+            )
+        return "\n\n".join(lines)
 
 
 # ── Standalone test ──────────────────────────────────────────

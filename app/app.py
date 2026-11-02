@@ -10,6 +10,7 @@ Luxury 3-column dining assistant interface matching the ReDi brand design:
 import datetime
 import html
 import os
+import re
 import sys
 from pathlib import Path
 import streamlit as st
@@ -28,6 +29,15 @@ from agent import ReDiRestaurantAIAgent
 
 # Load environment variables
 load_dotenv()
+
+# Pass Streamlit Cloud secrets to environment for Groq if available
+if not os.environ.get("GROQ_API_KEY"):
+    try:
+        import streamlit as st
+        if hasattr(st, "secrets") and "GROQ_API_KEY" in st.secrets:
+            os.environ["GROQ_API_KEY"] = st.secrets["GROQ_API_KEY"]
+    except Exception:
+        pass
 
 # ── Page config ──────────────────────────────────────────────
 st.set_page_config(
@@ -750,7 +760,7 @@ with col_prefs:
         "Dietary Needs",
         dietary_options,
         selection_mode="multi",
-        default=["Vegetarian"],
+        default=[],
         label_visibility="collapsed",
         key="dietary_pills",
     )
@@ -890,11 +900,32 @@ with col_chat:
             if selected_spice:
                 query_str += f" {selected_spice.lower()} spicy"
 
+            # If user query specifically mentions meat or seafood, override any accidental vegetarian/vegan filter!
+            meat_keywords = {
+                "fish", "chicken", "lamb", "shrimp", "duck", "meat", "seafood",
+                "fisch", "hähnchen", "lamm", "garnelen", "ente", "fleisch",
+                "salmon", "lachs", "maschli", "prawn", "prawns"
+            }
+            query_words = set(re.findall(r"\w+", (user_query + " " + parsed.search_query).lower()))
+            if query_words & meat_keywords:
+                merged_filters.pop("is_vegetarian", None)
+                merged_filters.pop("is_vegan_possible", None)
+
             results = agent.search_engine.search(
                 query=query_str,
                 filters=merged_filters,
                 top_k=4,
             )
+
+            # If zero items found with strict filters (e.g. price slider was set too low), auto-relax price ceiling
+            if not results and "max_price" in merged_filters:
+                relaxed_filters = dict(merged_filters)
+                relaxed_filters.pop("max_price", None)
+                results = agent.search_engine.search(
+                    query=query_str,
+                    filters=relaxed_filters,
+                    top_k=4,
+                )
 
             # 4. Generate recommendation response
             response = agent.generate_recommendation(user_query, parsed, results)
@@ -933,6 +964,16 @@ with col_dishes:
         filters=active_filters,
         top_k=3,
     )
+
+    # If zero items found under a tight price cap, auto-relax price so recommendations are never blank
+    if not display_results and "max_price" in active_filters:
+        relaxed_active = dict(active_filters)
+        relaxed_active.pop("max_price", None)
+        display_results = agent.search_engine.search(
+            query=active_search_query,
+            filters=relaxed_active,
+            top_k=3,
+        )
 
     if not display_results:
         st.info(f"No dishes found under €{selected_budget:.2f} with the selected dietary options. Try increasing the budget or relaxing dietary filters.")
