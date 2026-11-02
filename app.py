@@ -2,12 +2,13 @@
 app.py — Streamlit UI for the ReDi Restaurant AI Waiter
 ========================================================
 Luxury 3-column dining assistant interface matching the ReDi brand design:
-  • Column 1: Dietary and Budget Preferences (Pills, Slider, Occasion toggles)
-  • Column 2: ReDi AI Dining Assistant (Chat stream with RD avatar, pill input)
+  • Column 1: Dietary & Budget Preferences (Neat Pills, Slider, Occasion toggles)
+  • Column 2: ReDi AI Dining Assistant (Chat stream with RD avatar, bright pill input)
   • Column 3: Recommended Dishes (Photo cards, title, price, description, star ratings)
 """
 
 import datetime
+import html
 import os
 import sys
 from pathlib import Path
@@ -81,7 +82,6 @@ def get_dish_image(item: dict) -> str:
 def get_dish_rating(item: dict) -> tuple[str, float]:
     """Generate consistent 5-star rating representation."""
     item_id = item.get("item_id", 0)
-    # Match mockup exact values for signature dishes
     if item_id == 58:  # Paneer Tikka Masala
         return "★★★★★", 4.8
     elif item_id == 45:  # Daal Makhni
@@ -106,13 +106,13 @@ def inject_custom_css():
             display: none !important;
         }
 
-        /* Hide sidebar for full 3-column experience */
+        /* Hide sidebar completely */
         [data-testid="stSidebar"], [data-testid="collapsedControl"] {
             display: none !important;
         }
 
-        /* App background and typography */
-        .stApp {
+        /* Enforce page background & typography */
+        .stApp, html, body {
             background-color: #F8F5EE !important;
             color: #2A1D1A !important;
             font-family: 'Outfit', sans-serif !important;
@@ -120,21 +120,22 @@ def inject_custom_css():
 
         .main .block-container {
             padding-top: 0rem !important;
-            padding-bottom: 2rem !important;
-            padding-left: 2.5rem !important;
-            padding-right: 2.5rem !important;
-            max-width: 1440px !important;
+            padding-bottom: 2.5rem !important;
+            padding-left: 2rem !important;
+            padding-right: 2rem !important;
+            max-width: 1380px !important;
+            margin: 0 auto !important;
         }
 
         /* ── Top Navigation Bar ── */
         .luxury-navbar {
             background-color: #4A0E17;
             padding: 16px 36px;
-            margin: -0rem -2.5rem 24px -2.5rem;
+            margin: 0 -2rem 24px -2rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 4px 14px rgba(74, 14, 23, 0.15);
+            box-shadow: 0 4px 16px rgba(74, 14, 23, 0.16);
         }
 
         .navbar-brand {
@@ -192,18 +193,19 @@ def inject_custom_css():
             transform: scale(1.08);
         }
 
-        /* ── Section Titles ── */
+        /* ── Headings ── */
         .col-main-title {
             font-family: 'Outfit', sans-serif;
-            font-size: 1.35rem;
+            font-size: 1.3rem;
             font-weight: 700;
             color: #221411;
-            margin-bottom: 18px;
+            margin-bottom: 16px;
             letter-spacing: -0.2px;
+            line-height: 1.3;
         }
 
         .col-sub-title {
-            font-size: 1rem;
+            font-size: 0.98rem;
             font-weight: 600;
             color: #221411;
             margin-top: 14px;
@@ -213,46 +215,94 @@ def inject_custom_css():
         .col-desc-note {
             font-size: 0.82rem;
             color: #7A695E;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
 
-        /* ── St Pills Styling ── */
+        /* ── St Pills: Bulletproof light styling & wrapping ── */
         div[data-testid="stPills"] {
-            gap: 8px !important;
+            display: flex !important;
+            flex-wrap: wrap !important;
+            gap: 7px !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            padding: 2px 0 !important;
         }
+
         div[data-testid="stPills"] button {
+            background-color: #FFFFFF !important;
+            background-image: none !important;
+            background: #FFFFFF !important;
+            color: #2A1D1A !important;
+            border: 1.5px solid #D9CEBF !important;
             border-radius: 9999px !important;
-            border: 1px solid #D9CEBF !important;
-            background-color: #FDFBF8 !important;
-            color: #3A2D28 !important;
-            font-size: 0.84rem !important;
+            padding: 5px 13px !important;
+            font-size: 0.82rem !important;
             font-weight: 500 !important;
-            padding: 4px 14px !important;
+            box-shadow: none !important;
+            outline: none !important;
             transition: all 0.2s ease !important;
+            white-space: nowrap !important;
         }
+
+        div[data-testid="stPills"] button * {
+            color: inherit !important;
+            background: transparent !important;
+        }
+
         div[data-testid="stPills"] button:hover {
             border-color: #4A0E17 !important;
             color: #4A0E17 !important;
+            background-color: #F8F4EE !important;
+            background-image: none !important;
         }
+
+        div[data-testid="stPills"] button:focus,
+        div[data-testid="stPills"] button:active {
+            box-shadow: none !important;
+            outline: none !important;
+        }
+
+        /* Selected Pill state */
         div[data-testid="stPills"] button[aria-checked="true"],
-        div[data-testid="stPills"] button[data-selected="true"] {
+        div[data-testid="stPills"] button[data-selected="true"],
+        div[data-testid="stPills"] button[aria-pressed="true"] {
             background-color: #4A0E17 !important;
+            background-image: none !important;
+            background: #4A0E17 !important;
             color: #FFFFFF !important;
             border-color: #4A0E17 !important;
             font-weight: 600 !important;
+            box-shadow: 0 2px 6px rgba(74, 14, 23, 0.25) !important;
         }
 
-        /* ── St Slider ── */
-        div[data-testid="stSlider"] div[data-baseweb="slider"] {
-            color: #4A0E17 !important;
+        div[data-testid="stPills"] button[aria-checked="true"] *,
+        div[data-testid="stPills"] button[data-selected="true"] *,
+        div[data-testid="stPills"] button[aria-pressed="true"] * {
+            color: #FFFFFF !important;
+        }
+
+        /* ── St Slider: contained within column, no right overflow ── */
+        div[data-testid="stSlider"] {
+            width: 100% !important;
+            padding: 2px 6px !important;
+            box-sizing: border-box !important;
+        }
+        div[data-testid="stSlider"] > div {
+            padding-right: 6px !important;
+        }
+        div[data-testid="stSlider"] [data-testid="stSliderTrack"] {
+            background-color: #E2D7CB !important;
+        }
+        div[data-testid="stSlider"] [data-testid="stSliderTrack"] > div > div {
+            background-color: #4A0E17 !important;
         }
         div[data-testid="stSlider"] [role="slider"] {
             background-color: #4A0E17 !important;
             border: 2px solid #FFFFFF !important;
-            box-shadow: 0 1px 4px rgba(74, 14, 23, 0.3) !important;
-        }
-        div[data-testid="stSlider"] [data-testid="stSliderTrack"] > div > div {
-            background-color: #4A0E17 !important;
+            box-shadow: 0 2px 6px rgba(74, 14, 23, 0.35) !important;
+            width: 18px !important;
+            height: 18px !important;
         }
 
         /* ── St Toggle ── */
@@ -261,30 +311,30 @@ def inject_custom_css():
             background-color: #4A0E17 !important;
         }
         div[data-testid="stToggle"] p {
-            font-size: 0.95rem !important;
+            font-size: 0.92rem !important;
             color: #2A1D1A !important;
             font-weight: 500 !important;
         }
 
-        /* ── Center Chat Panel ── */
+        /* ── Center Chat Panel (Single Card Container) ── */
         .chat-card-panel {
             background: #FFFFFF;
             border-radius: 18px;
-            border: 1px solid #ECE3D7;
-            padding: 20px 22px 14px 22px;
+            border: 1.5px solid #EAE2D8;
+            padding: 18px 20px 14px 20px;
             box-shadow: 0 4px 18px rgba(42, 29, 26, 0.04);
             display: flex;
             flex-direction: column;
-            min-height: 620px;
+            margin-bottom: 12px;
         }
 
         .chat-card-header {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding-bottom: 14px;
-            border-bottom: 1px solid #F2ECE3;
-            margin-bottom: 18px;
+            padding-bottom: 12px;
+            border-bottom: 1.5px solid #F4ECE3;
+            margin-bottom: 14px;
         }
 
         .chat-avatar-rd {
@@ -300,104 +350,172 @@ def inject_custom_css():
             font-weight: 700;
             letter-spacing: 0.5px;
             flex-shrink: 0;
+            box-shadow: 0 2px 5px rgba(74, 14, 23, 0.2);
+        }
+
+        .msg-avatar-small {
+            width: 32px !important;
+            height: 32px !important;
+            font-size: 0.78rem !important;
         }
 
         .chat-header-name {
-            font-size: 1.12rem;
+            font-size: 1.1rem;
             font-weight: 700;
             color: #221411;
             font-family: 'Outfit', sans-serif;
         }
 
-        /* Messages */
+        /* Scrollable messages container inside the card */
+        .chat-messages-container {
+            max-height: 460px;
+            min-height: 240px;
+            overflow-y: auto;
+            padding-right: 6px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .chat-messages-container::-webkit-scrollbar {
+            width: 5px;
+        }
+        .chat-messages-container::-webkit-scrollbar-thumb {
+            background-color: #D9CEBF;
+            border-radius: 10px;
+        }
+
         .msg-assistant-wrapper {
             display: flex;
             gap: 10px;
-            margin-bottom: 16px;
             align-items: flex-start;
         }
 
         .msg-bubble-assistant {
-            background-color: #FFFFFF;
-            border: 1px solid #EBE2D7;
+            background-color: #FAF8F5;
+            border: 1px solid #ECE3D7;
             border-radius: 14px;
-            padding: 12px 16px;
+            padding: 11px 15px;
             color: #2A1D1A;
-            font-size: 0.92rem;
-            line-height: 1.5;
+            font-size: 0.91rem;
+            line-height: 1.48;
             max-width: 86%;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
         }
 
         .msg-time-stamp {
             font-size: 0.72rem;
             color: #8C7E74;
-            margin-top: 5px;
+            margin-top: 4px;
             display: block;
         }
 
         .msg-user-wrapper {
             display: flex;
             justify-content: flex-end;
-            margin-bottom: 16px;
         }
 
         .msg-bubble-user {
             background-color: #EADDC6;
             border-radius: 14px;
-            padding: 12px 16px;
+            padding: 11px 15px;
             color: #2A1D1A;
-            font-size: 0.92rem;
-            line-height: 1.5;
+            font-size: 0.91rem;
+            line-height: 1.48;
             max-width: 82%;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
         }
 
-        /* ── St Chat Input Pill ── */
+        .msg-time-stamp-user {
+            font-size: 0.72rem;
+            color: #6D5F54;
+            margin-top: 4px;
+            display: block;
+            text-align: right;
+        }
+
+        /* ── St Chat Input: Pure White Pill, No Dark Box ── */
         div[data-testid="stChatInput"] {
-            border-radius: 9999px !important;
-            border: 1px solid #D9CEBF !important;
-            background-color: #FFFFFF !important;
-            box-shadow: 0 2px 8px rgba(74, 14, 23, 0.04) !important;
-            padding: 2px 8px !important;
-            margin-top: 10px !important;
+            background: transparent !important;
+            border: none !important;
+            padding: 0 !important;
+            margin-top: 6px !important;
+            box-shadow: none !important;
         }
 
-        div[data-testid="stChatInput"]:focus-within {
+        div[data-testid="stChatInput"] > div {
+            background-color: #FFFFFF !important;
+            background: #FFFFFF !important;
+            border: 1.5px solid #D9CEBF !important;
+            border-radius: 9999px !important;
+            padding: 4px 10px 4px 16px !important;
+            box-shadow: 0 2px 10px rgba(74, 14, 23, 0.05) !important;
+            transition: all 0.2s ease !important;
+        }
+
+        div[data-testid="stChatInput"] > div:focus-within {
             border-color: #4A0E17 !important;
             box-shadow: 0 0 0 2px rgba(74, 14, 23, 0.12) !important;
         }
 
+        div[data-testid="stChatInput"] [data-baseweb="base-input"],
+        div[data-testid="stChatInput"] [data-baseweb="textarea"] {
+            background-color: transparent !important;
+            background: transparent !important;
+            border: none !important;
+        }
+
         div[data-testid="stChatInput"] textarea {
+            background-color: transparent !important;
+            background: transparent !important;
             color: #2A1D1A !important;
+            caret-color: #4A0E17 !important;
+            font-family: 'Outfit', sans-serif !important;
             font-size: 0.92rem !important;
+            border: none !important;
+            outline: none !important;
+            box-shadow: none !important;
+            line-height: 1.4 !important;
+        }
+
+        div[data-testid="stChatInput"] textarea::placeholder {
+            color: #9C8C80 !important;
         }
 
         div[data-testid="stChatInput"] button {
             background-color: #4A0E17 !important;
+            background: #4A0E17 !important;
             color: #FFFFFF !important;
             border-radius: 50% !important;
-            width: 32px !important;
-            height: 32px !important;
+            width: 34px !important;
+            height: 34px !important;
+            border: none !important;
             display: flex !important;
             align-items: center !important;
             justify-content: center !important;
-            border: none !important;
+            box-shadow: 0 2px 6px rgba(74, 14, 23, 0.25) !important;
+            transition: transform 0.15s ease !important;
+        }
+
+        div[data-testid="stChatInput"] button:hover {
+            transform: scale(1.06) !important;
+            background-color: #5E121E !important;
         }
 
         div[data-testid="stChatInput"] button svg {
             fill: #FFFFFF !important;
+            color: #FFFFFF !important;
         }
 
         /* ── Right Column: Dish Cards ── */
         .dish-card {
             background: #FFFFFF;
-            border: 1px solid #EAE2D8;
+            border: 1.5px solid #EAE2D8;
             border-radius: 16px;
-            padding: 14px;
-            margin-bottom: 14px;
+            padding: 13px;
+            margin-bottom: 12px;
             display: flex;
-            gap: 14px;
+            gap: 12px;
             box-shadow: 0 2px 8px rgba(42, 29, 26, 0.03);
             transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
@@ -405,6 +523,7 @@ def inject_custom_css():
         .dish-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 18px rgba(74, 14, 23, 0.08);
+            border-color: #DFD3C4;
         }
 
         .dish-thumb {
@@ -431,24 +550,24 @@ def inject_custom_css():
         }
 
         .dish-name-txt {
-            font-size: 1.02rem;
+            font-size: 1.01rem;
             font-weight: 700;
             color: #221411;
             margin: 0;
         }
 
         .dish-price-txt {
-            font-size: 1.02rem;
+            font-size: 1rem;
             font-weight: 700;
             color: #221411;
             margin: 0;
         }
 
         .dish-desc-txt {
-            font-size: 0.82rem;
+            font-size: 0.81rem;
             color: #685A50;
             line-height: 1.35;
-            margin: 2px 0 6px 0;
+            margin: 2px 0 5px 0;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
@@ -464,7 +583,7 @@ def inject_custom_css():
         .dish-stars-rating {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
         }
 
         .stars-gold {
@@ -498,20 +617,30 @@ def inject_custom_css():
             color: #203864;
         }
 
-        /* Action buttons in col 1 */
-        .btn-clean button {
+        /* ── Clear Chat Button: Clean Outlined Luxury Style ── */
+        .stButton > button {
             background-color: #FAF7F2 !important;
-            color: #5A4B40 !important;
-            border: 1px solid #D9CEBF !important;
-            border-radius: 8px !important;
-            font-size: 0.85rem !important;
-            font-weight: 600 !important;
-            transition: all 0.2s ease !important;
-        }
-        .btn-clean button:hover {
-            border-color: #4A0E17 !important;
+            background: #FAF7F2 !important;
             color: #4A0E17 !important;
-            background-color: #F4EFEA !important;
+            border: 1.5px solid #4A0E17 !important;
+            border-radius: 9999px !important;
+            font-size: 0.86rem !important;
+            font-weight: 600 !important;
+            padding: 7px 16px !important;
+            transition: all 0.2s ease !important;
+            box-shadow: none !important;
+            width: 100% !important;
+        }
+        .stButton > button:hover {
+            background-color: #4A0E17 !important;
+            background: #4A0E17 !important;
+            color: #FFFFFF !important;
+            border-color: #4A0E17 !important;
+            box-shadow: 0 2px 8px rgba(74, 14, 23, 0.2) !important;
+        }
+        .stButton > button p {
+            color: inherit !important;
+            font-weight: 600 !important;
         }
         </style>
         """,
@@ -592,7 +721,7 @@ if "messages" not in st.session_state:
     ]
 
 # ── Three-Column Layout ──────────────────────────────────────
-col_prefs, col_chat, col_dishes = st.columns([1.1, 1.8, 1.4], gap="medium")
+col_prefs, col_chat, col_dishes = st.columns([1.15, 1.85, 1.35], gap="medium")
 
 # ─────────────────────────────────────────────────────────────
 # ── COLUMN 1: Dietary & Budget Preferences ───────────────────
@@ -666,85 +795,64 @@ with col_prefs:
     if occ_quick:
         active_filters["is_lunch_menu"] = True
 
-    st.markdown("<div style='margin-top: 24px;'></div>", unsafe_allow_html=True)
-    col_b1, col_b2 = st.columns(2)
-    with col_b1:
-        if st.button("🔄 Clear Chat", use_container_width=True, key="clear_chat_btn"):
-            now_time = datetime.datetime.now().strftime("%I:%M %p")
-            st.session_state.messages = [
-                {
-                    "role": "assistant",
-                    "content": (
-                        "Namaste! Welcome to ReDi. How can I assist you with your "
-                        "Indian dining experience today? 🥂❤️"
-                    ),
-                    "time": now_time,
-                }
-            ]
-            st.session_state.current_results = []
-            st.rerun()
-
-    with col_b2:
-        pdf_path = PROJECT_ROOT / "raw_data" / "Menu of ReDi Restaurant.pdf"
-        if pdf_path.exists():
-            with open(pdf_path, "rb") as f:
-                pdf_bytes = f.read()
-            st.download_button(
-                label="📄 Menu PDF",
-                data=pdf_bytes,
-                file_name="ReDi_Restaurant_Menu.pdf",
-                mime="application/pdf",
-                use_container_width=True,
-            )
+    st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
+    if st.button("🔄 Clear Chat History", use_container_width=True, key="clear_chat_btn"):
+        now_time = datetime.datetime.now().strftime("%I:%M %p")
+        st.session_state.messages = [
+            {
+                "role": "assistant",
+                "content": (
+                    "Namaste! Welcome to ReDi. How can I assist you with your "
+                    "Indian dining experience today? 🥂❤️"
+                ),
+                "time": now_time,
+            }
+        ]
+        st.session_state.current_results = []
+        st.rerun()
 
 
 # ─────────────────────────────────────────────────────────────
 # ── COLUMN 2: ReDi AI Dining Assistant (Chat) ────────────────
 # ─────────────────────────────────────────────────────────────
 with col_chat:
-    st.markdown(
-        """
-        <div class="chat-card-panel">
-            <div class="chat-card-header">
-                <div class="chat-avatar-rd">RD</div>
-                <div class="chat-header-name">ReDi AI Dining Assistant</div>
-            </div>
-        """,
-        unsafe_allow_html=True,
-    )
+    # Build complete chat HTML into a single block so that messages are strictly inside the card
+    chat_html_lines = [
+        '<div class="chat-card-panel">',
+        '  <div class="chat-card-header">',
+        '    <div class="chat-avatar-rd">RD</div>',
+        '    <div class="chat-header-name">ReDi AI Dining Assistant</div>',
+        '  </div>',
+        '  <div class="chat-messages-container">',
+    ]
 
-    # Render conversational chat messages
     for msg in st.session_state.messages:
-        time_str = msg.get("time", "9:30 PM")
+        time_str = html.escape(msg.get("time", "9:30 PM"))
+        content_str = html.escape(msg["content"]).replace("\n", "<br/>")
         if msg["role"] == "assistant":
-            st.markdown(
-                f"""
-                <div class="msg-assistant-wrapper">
-                    <div class="chat-avatar-rd" style="width: 32px; height: 32px; font-size: 0.8rem;">RD</div>
-                    <div class="msg-bubble-assistant">
-                        {msg["content"]}
-                        <span class="msg-time-stamp">{time_str}</span>
-                    </div>
-                </div>
-                """,
-                unsafe_allow_html=True,
+            chat_html_lines.append(
+                f'<div class="msg-assistant-wrapper">'
+                f'  <div class="chat-avatar-rd msg-avatar-small">RD</div>'
+                f'  <div class="msg-bubble-assistant">{content_str}'
+                f'    <span class="msg-time-stamp">{time_str}</span>'
+                f'  </div>'
+                f'</div>'
             )
         else:
-            st.markdown(
-                f"""
-                <div class="msg-user-wrapper">
-                    <div class="msg-bubble-user">
-                        {msg["content"]}
-                        <span class="msg-time-stamp" style="color: #6D5F54; text-align: right;">{time_str}</span>
-                    </div>
-                </div>
-                """,
-                unsafe_allow_html=True,
+            chat_html_lines.append(
+                f'<div class="msg-user-wrapper">'
+                f'  <div class="msg-bubble-user">{content_str}'
+                f'    <span class="msg-time-stamp-user">{time_str}</span>'
+                f'  </div>'
+                f'</div>'
             )
 
-    st.markdown("</div>", unsafe_allow_html=True)
+    chat_html_lines.append('  </div>')  # close chat-messages-container
+    chat_html_lines.append('</div>')     # close chat-card-panel
 
-    # Pill chat input
+    st.markdown("\n".join(chat_html_lines), unsafe_allow_html=True)
+
+    # Pill chat input right under the card
     user_query = st.chat_input("Type your message...")
     if user_query:
         now_str = datetime.datetime.now().strftime("%I:%M %p")
