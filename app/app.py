@@ -47,7 +47,6 @@ st.set_page_config(
     initial_sidebar_state="collapsed",
 )
 
-
 # ── Curated Food Photos for Authentic Presentation ──────────
 def get_dish_image(item: dict) -> str:
     """Return an appetizing Indian culinary image matching the dish keywords."""
@@ -88,7 +87,6 @@ def get_dish_image(item: dict) -> str:
         return "https://images.unsplash.com/photo-1599785209707-a456fc1337bb?w=300&auto=format&fit=crop&q=80"
     return "https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=300&auto=format&fit=crop&q=80"
 
-
 def get_dish_rating(item: dict) -> tuple[str, float]:
     """Generate consistent 5-star rating representation."""
     item_id = item.get("item_id", 0)
@@ -102,7 +100,6 @@ def get_dish_rating(item: dict) -> tuple[str, float]:
     score = item.get("similarity_score", 0.7)
     base = 4.6 + (((item_id * 13) + int(score * 100)) % 4) * 0.1
     return "★★★★★", round(base, 1)
-
 
 # ── Custom CSS ───────────────────────────────────────────────
 def inject_custom_css():
@@ -669,15 +666,12 @@ def inject_custom_css():
         unsafe_allow_html=True,
     )
 
-
 inject_custom_css()
-
 
 # ── Load Agent ───────────────────────────────────────────────
 @st.cache_resource(show_spinner="Initializing ReDi AI Waiter...")
 def load_agent():
     return ReDiRestaurantAIAgent()
-
 
 agent = load_agent()
 
@@ -711,7 +705,6 @@ st.markdown(
     """,
     unsafe_allow_html=True,
 )
-
 
 # ── Session State Initialisation ─────────────────────────────
 if "messages" not in st.session_state:
@@ -818,7 +811,13 @@ with col_prefs:
         active_filters["is_lunch_menu"] = True
 
     st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
-    if st.button("🔄 Clear Chat History", use_container_width=True, key="clear_chat_btn"):
+    def reset_all_preferences_and_chat():
+        st.session_state["dietary_pills"] = []
+        st.session_state["spice_pills"] = "Medium"
+        st.session_state["budget_slider"] = 20
+        st.session_state["toggle_date"] = False
+        st.session_state["toggle_family"] = False
+        st.session_state["toggle_quick"] = False
         now_time = datetime.datetime.now().strftime("%I:%M %p")
         st.session_state.messages = [
             {
@@ -832,8 +831,13 @@ with col_prefs:
         ]
         if "last_search_query" in st.session_state:
             del st.session_state["last_search_query"]
-        st.rerun()
 
+    st.button(
+        "🔄 Reset Filters & Chat",
+        on_click=reset_all_preferences_and_chat,
+        use_container_width=True,
+        key="reset_all_btn",
+    )
 
 # ─────────────────────────────────────────────────────────────
 # ── COLUMN 2: ReDi AI Dining Assistant (Chat) ────────────────
@@ -934,7 +938,6 @@ with col_chat:
             {"role": "assistant", "content": response, "time": now_str}
         )
         st.rerun()
-
 
 # ─────────────────────────────────────────────────────────────
 # ── COLUMN 3: Recommended Dishes (Dynamically Synced) ────────
