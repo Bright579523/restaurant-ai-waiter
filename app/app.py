@@ -2,9 +2,9 @@
 app.py — Streamlit UI for the ReDi Restaurant AI Waiter
 ========================================================
 Luxury 3-column dining assistant interface matching the ReDi brand design:
-  • Column 1: Dietary & Budget Preferences (Neat Pills, Slider, Occasion toggles)
+  • Column 1: Dietary & Budget Preferences (Neat Pills, Live Reactive Slider, Occasion toggles)
   • Column 2: ReDi AI Dining Assistant (Chat stream with RD avatar, bright pill input)
-  • Column 3: Recommended Dishes (Photo cards, title, price, description, star ratings)
+  • Column 3: Recommended Dishes (Photo cards, title, price, description, star ratings — live synced with filters)
 """
 
 import datetime
@@ -617,6 +617,18 @@ def inject_custom_css():
             color: #203864;
         }
 
+        .active-filter-badge {
+            background-color: #FAF4EB;
+            border: 1px solid #E5DACD;
+            color: #4A0E17;
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
         /* ── Clear Chat Button: Clean Outlined Luxury Style ── */
         .stButton > button {
             background-color: #FAF7F2 !important;
@@ -789,8 +801,8 @@ with col_prefs:
         if allergens:
             active_filters["exclude_allergens"] = allergens
 
-    if selected_budget < 50:
-        active_filters["max_price"] = float(selected_budget)
+    # Always enforce the active budget ceiling!
+    active_filters["max_price"] = float(selected_budget)
 
     if occ_quick:
         active_filters["is_lunch_menu"] = True
@@ -808,7 +820,8 @@ with col_prefs:
                 "time": now_time,
             }
         ]
-        st.session_state.current_results = []
+        if "last_search_query" in st.session_state:
+            del st.session_state["last_search_query"]
         st.rerun()
 
 
@@ -864,6 +877,9 @@ with col_chat:
             # 1. Parse user intent with Groq
             parsed = agent.parse_user_intent(user_query)
 
+            # Store semantic query to guide recommended dishes
+            st.session_state.last_search_query = parsed.search_query
+
             # 2. Merge user intent filters with active preference pills & toggles
             merged_filters = dict(active_filters)
             parsed_dict = parsed.filters.model_dump(exclude_none=True)
@@ -879,7 +895,6 @@ with col_chat:
                 filters=merged_filters,
                 top_k=4,
             )
-            st.session_state.current_results = results
 
             # 4. Generate recommendation response
             response = agent.generate_recommendation(user_query, parsed, results)
@@ -891,7 +906,7 @@ with col_chat:
 
 
 # ─────────────────────────────────────────────────────────────
-# ── COLUMN 3: Recommended Dishes ─────────────────────────────
+# ── COLUMN 3: Recommended Dishes (Dynamically Synced) ────────
 # ─────────────────────────────────────────────────────────────
 with col_dishes:
     st.markdown(
@@ -899,23 +914,28 @@ with col_dishes:
         unsafe_allow_html=True,
     )
 
-    # If no search results yet, fetch signature recommendations matching mockup
-    display_results = st.session_state.get("current_results")
-    if not display_results:
-        # Signature dishes matching design mockup: 58 (Paneer Tikka Masala), 45 (Daal Makhni), 55 (Palak Paneer)
-        signature_ids = [58, 45, 55]
-        sig_items = []
-        for sid in signature_ids:
-            row = agent.search_engine.df[agent.search_engine.df["item_id"] == sid]
-            if not row.empty:
-                item_dict = row.iloc[0].to_dict()
-                item_dict["similarity_score"] = 0.95
-                sig_items.append(item_dict)
-        display_results = sig_items
-        st.session_state.current_results = display_results
+    # Show active budget indicator
+    st.markdown(
+        f"<span class='active-filter-badge'>💰 Filtered: ≤ €{selected_budget:.2f}</span>",
+        unsafe_allow_html=True,
+    )
+
+    # Determine query based on current or last chat query + active spice
+    active_search_query = st.session_state.get(
+        "last_search_query", "Paneer Tikka Masala Daal Makhni Palak Paneer curry"
+    )
+    if selected_spice:
+        active_search_query += f" {selected_spice.lower()} spicy"
+
+    # Search dynamically with active filters (budget ceiling, dietary, allergen flags)
+    display_results = agent.search_engine.search(
+        query=active_search_query,
+        filters=active_filters,
+        top_k=3,
+    )
 
     if not display_results:
-        st.info("No dishes match the selected preferences. Try adjusting the filters.")
+        st.info(f"No dishes found under €{selected_budget:.2f} with the selected dietary options. Try increasing the budget or relaxing dietary filters.")
     else:
         for item in display_results:
             img_url = get_dish_image(item)
