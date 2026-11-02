@@ -24,11 +24,11 @@ An intelligent, allergy-safe menu recommendation chatbot for **ReDi Restaurant**
 
 ## 📸 Application Showcase
 
-### 🏠 1. Home & Welcome Screen
-> *Intuitive landing interface with welcome greeting, system badges, and one-click example question shortcuts.*
+### 🏠 1. Luxury Restaurant AI Waiter Interface
+> *Intuitive two-column landing interface featuring live sidebar dietary/allergen filters, conversational AI waiter chat, and real-time matching dish recommendation cards.*
 
-![Home & Welcome Screen](report/dashboard_home.png)
-*Caption: Clean chat overview with quick example questions and allergy/dietary safety indicators.*
+![ReDi Restaurant AI Waiter Live Dashboard](report/dashboard_home.jpg)
+*Caption: Live application view — ReDi Restaurant AI Waiter with quick dietary preferences, allergen exclusion, budget slider, chat dialog, and matching dish cards.*
 
 <br/>
 
